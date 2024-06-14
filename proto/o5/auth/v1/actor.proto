@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package o5.auth.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/pentops/o5-auth/gen/o5/auth/v1/auth_pb";
+
+message Actor {
+  oneof type {
+    AuthenticatedActor authenticated = 1;
+    NamedActor named = 2;
+  }
+
+  message NamedActor {
+    string name = 1;
+  }
+}
+
+message AuthenticatedActor {
+  // The unique identifier of the actor, derived from the various actor type
+  // methods.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+
+  ActorType type = 2 [(buf.validate.field).required = true];
+
+  Claim claim = 3 [(buf.validate.field).required = true];
+
+  // Arbitrary tags that are defined by the authorizing system to quickly
+  // identify the user e.g. the user's email address, API Key Name, etc.
+  // Must not be used in authorization logic, and should not be used as a
+  // the primary source of the actor's identity.
+  map<string, string> actor_tags = 4;
+}
+
+message ActorType {
+  oneof type {
+    UserAgent user_agent = 1;
+    ApiClient api_client = 2;
+  }
+
+  // A (presumably) human user using a web browser or mobile app.
+  message UserAgent {
+    ClientAuthType client_auth = 1;
+
+    // The provided user agent string of the client.
+    string user_agent = 2;
+
+    // The IP address of the client as best as can be determined
+    string ip_address = 3;
+  }
+
+  message ApiClient {
+    ClientAuthType client_auth = 1;
+
+    // The IP address of the client as best as can be determined
+    string ip_address = 2;
+  }
+}
+
+message ClientAuthType {
+  oneof type {
+    JWTAuth jwt = 1;
+    SessionAuth session = 2;
+  }
+
+  message JWTAuth {
+    string jwt_id = 1;
+    string issuer = 2;
+    google.protobuf.Timestamp issued_at = 3;
+  }
+
+  message SessionAuth {
+    // The identity of the system which stored and evaluated the session.
+    string session_manager = 1;
+
+    // The session ID as defined by the session manager
+    string session_id = 2;
+
+    // The time at which the session was verified by the session manager.
+    google.protobuf.Timestamp verified_at = 3;
+
+    // The time at which the session began at the session manager. (e.g. the
+    // time a refresh token was used to create a new session)
+    google.protobuf.Timestamp authenticated_at = 4;
+  }
+}
+
+message Claim {
+  // The actor is only authorized to view and access resources which
+  // match **ALL** of the filters.
+  // Keys are globally unique, values are UUIDs.
+  map<string, string> tenant_filter = 1 [(buf.validate.field).map.values.string.uuid = true];
+
+  repeated string scopes = 2;
+}

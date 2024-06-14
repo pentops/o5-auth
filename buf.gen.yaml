@@ -1,0 +1,16 @@
+version: v2
+plugins:
+  - remote: buf.build/protocolbuffers/go:v1.31.0
+    out: .
+    opt: paths=import,module=github.com/pentops/o5-auth
+
+  - local: protoc-gen-go-grpc # 'Official' version
+    out: .
+    opt: paths=import,module=github.com/pentops/o5-auth
+
+  - local: protoc-gen-go-sugar # github.com/pentops/protoc-gen-go-sugar
+    out: .
+    opt: paths=import,module=github.com/pentops/o5-auth
+
+inputs:
+  - directory: proto
