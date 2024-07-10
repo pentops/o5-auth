@@ -25,17 +25,22 @@ message Fingerprint {
 message Actor {
   // The unique identifier of the actor, derived from the various actor type
   // methods.
-  string id = 1 [(buf.validate.field).string.uuid = true];
+  string subject_id = 1 [(buf.validate.field).string.uuid = true];
 
-  AuthenticationMethod authentication_method = 2;
+  // Free string identifying the type of the actor, e.g. 'user', 'service',
+  // defined by the authenticating system. (subject IDs must still be unique without
+  // considering subject_type)
+  string subject_type = 2;
 
-  Claim claim = 3 [(buf.validate.field).required = true];
+  AuthenticationMethod authentication_method = 3;
+
+  Claim claim = 4 [(buf.validate.field).required = true];
 
   // Arbitrary tags that are defined by the authorizing system to quickly
   // identify the user e.g. the user's email address, API Key Name, etc.
   // Must not be used in authorization logic, and should not be used as a
   // the primary source of the actor's identity.
-  map<string, string> actor_tags = 4;
+  map<string, string> actor_tags = 5;
 }
 
 message AuthenticationMethod {
