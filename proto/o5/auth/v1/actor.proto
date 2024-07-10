@@ -88,10 +88,34 @@ message ClientAuthType {
 }
 
 message Claim {
-  // The actor is only authorized to view and access resources which
-  // match **ALL** of the filters.
-  // Keys are globally unique, values are UUIDs.
-  map<string, string> tenant_filter = 1 [(buf.validate.field).map.values.string.uuid = true];
+  // 'Tenant Entities' in the system represent an organization or group with
+  // ownership, responsibility or control of 'Resource Entities'. The various
+  // ways in which these associacions are moddled is up to the application code,
+  // but can be called 'owned by', if slightly inaccurately, for simplification,
+  // but this does not imply a single owner or even a chain of ownership.
+  // Resource Entities are owned by Tenant Entities either directly,
+  // or indirectly via relationships with other entities, including other Tenant
+  // Entities (e.g. where a 'User' is both a Tenant, and a Resource which an
+  // 'Organization' can manage, resources belonging to the 'User' also belong to
+  // the 'Organization').
+  //
+  // Code within the pentops paradeigms (o5, j5) store the list of tenants with
+  // the resource entity, e.g. in protostate StateKeys.
+  //
+  // All code enforcing or granting access must follow the following rules:
+  //
+  // - Entities can have multiple owners,
+  // - Ownership is immutable.
+  // - No entries = No access to anything, basically useless.
+  // - One entry: Access to all resource entities 'owned by' the tenant entity
+  // - Multiple entries: Access only to Resource Entities jointly owned by all
+  //   listed Tenant Entities.
+  //
+  // Keys are defined by the application code, representing the 'type' of tenant,
+  // e.g. 'account', 'organization' etc, and should be treated like an enum.
+  // Whilst not required by any pentops code, the tenant keys should be globally
+  // unique, e.g. a URI (e.g. 'claims.example.com/account')
+  map<string, string> tenant = 1 [(buf.validate.field).map.values.string.uuid = true];
 
   repeated string scopes = 2;
 }
