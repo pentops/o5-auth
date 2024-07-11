@@ -1,4 +1,4 @@
-package middleware
+package o5auth
 
 import (
 	"context"
