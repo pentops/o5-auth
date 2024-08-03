@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
-	"github.com/pentops/o5-auth/gen/o5/auth/v1/auth_pb"
+	"github.com/pentops/o5-auth/gen/o5/auth/v1/auth_o5pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -24,20 +24,20 @@ const (
 type actionContextKey struct{}
 
 // WithAction should only be used in test cases, otherwise use the GRPCMiddleware.
-func WithAction(ctx context.Context, action *auth_pb.Action) context.Context {
+func WithAction(ctx context.Context, action *auth_o5pb.Action) context.Context {
 	return context.WithValue(ctx, actionContextKey{}, action)
 }
 
 var ErrNoActor = status.Error(codes.Unauthenticated, "no actor in context")
 
-func GetAction(ctx context.Context) *auth_pb.Action {
-	if action, ok := ctx.Value(actionContextKey{}).(*auth_pb.Action); ok {
+func GetAction(ctx context.Context) *auth_o5pb.Action {
+	if action, ok := ctx.Value(actionContextKey{}).(*auth_o5pb.Action); ok {
 		return action
 	}
 	return nil
 }
 
-func GetAuthenticatedAction(ctx context.Context) (*auth_pb.Action, error) {
+func GetAuthenticatedAction(ctx context.Context) (*auth_o5pb.Action, error) {
 	action := GetAction(ctx)
 	if action == nil {
 		return nil, errors.New("no action in context")
@@ -49,18 +49,23 @@ func GetAuthenticatedAction(ctx context.Context) (*auth_pb.Action, error) {
 }
 
 type baseJWT struct {
-	Issuer   string `json:"iss"`
-	Subject  string `json:"sub"`
-	IssuedAt int64  `json:"iat"`
-	ID       string `json:"jti"`
+	ID        string `json:"jti"`
+	Issuer    string `json:"iss"`
+	Audience  string `json:"aud"`
+	Subject   string `json:"sub"`
+	IssuedAt  int64  `json:"iat"`
+	Expires   int64  `json:"exp"`
+	NotBefore int64  `json:"nbf"`
 
 	Scopes []string `json:"scopes"`
 
-	Tenant    map[string]string `json:"claims.pentops.com/tenant"`
-	ActorTags map[string]string `json:"claims.pentops.com/actortags"`
+	TenantType string            `json:"claims.pentops.com/tenant"`
+	TenantID   string            `json:"claims.pentops.com/tenantid"`
+	RealmID    string            `json:"claims.pentops.com/realmid"`
+	ActorTags  map[string]string `json:"claims.pentops.com/actortags"`
 }
 
-func actorFromJWT(jwt *baseJWT) (*auth_pb.Actor, error) {
+func actorFromJWT(jwt *baseJWT) (*auth_o5pb.Actor, error) {
 	subjectParts := strings.Split(jwt.Subject, "/")
 	if len(subjectParts) != 2 {
 		return nil, fmt.Errorf("invalid subject: %s", jwt.Subject)
@@ -72,17 +77,19 @@ func actorFromJWT(jwt *baseJWT) (*auth_pb.Actor, error) {
 
 	issuedAt := time.Unix(jwt.IssuedAt, 0)
 
-	return &auth_pb.Actor{
+	return &auth_o5pb.Actor{
 		SubjectId:   subjectID,
 		SubjectType: subjectType,
 		ActorTags:   jwt.ActorTags,
-		Claim: &auth_pb.Claim{
-			Scopes: jwt.Scopes,
-			Tenant: jwt.Tenant,
+		Claim: &auth_o5pb.Claim{
+			Scopes:     jwt.Scopes,
+			TenantType: jwt.TenantType,
+			RealmId:    jwt.RealmID,
+			TenantId:   jwt.TenantID,
 		},
-		AuthenticationMethod: &auth_pb.AuthenticationMethod{
-			Type: &auth_pb.AuthenticationMethod_Jwt{
-				Jwt: &auth_pb.AuthenticationMethod_JWT{
+		AuthenticationMethod: &auth_o5pb.AuthenticationMethod{
+			Type: &auth_o5pb.AuthenticationMethod_Jwt{
+				Jwt: &auth_o5pb.AuthenticationMethod_JWT{
 					JwtId:    jwt.ID,
 					Issuer:   jwt.Issuer,
 					IssuedAt: timestamppb.New(issuedAt),
@@ -108,7 +115,7 @@ func GRPCMiddleware(ctx context.Context, req any, info *grpc.UnaryServerInfo, ha
 		return nil, err
 	}
 
-	action := &auth_pb.Action{
+	action := &auth_o5pb.Action{
 		Actor:  actor,
 		Method: info.FullMethod,
 		// TODO: Fingerprint
