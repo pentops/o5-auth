@@ -1,0 +1,20 @@
+registry:
+  owner: pentops
+  name: realms
+
+packages:
+  - name: o5.realms.v1
+
+options:
+  subPackages: []
+
+dependencies:
+  - bufRegistry:
+      owner: bufbuild
+      name: protovalidate
+  - registry:
+      owner: pentops
+      name: j5
+  - registry:
+      owner: pentops
+      name: protostate

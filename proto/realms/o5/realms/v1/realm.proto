@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package o5.auth.v1;
+
+import "buf/validate/validate.proto";
+import "j5/ext/v1/annotations.proto";
+import "psm/state/v1/metadata.proto";
+
+option go_package = "github.com/pentops/o5-auth/gen/o5/realm/v1/realm_o5pb";
+
+message RealmKeys {
+  option (j5.ext.v1.psm).entity_name = "realm";
+
+  string realm_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (j5.ext.v1.key).primary_key = true
+  ];
+}
+
+message RealmStateData {
+  RealmSpec spec = 1;
+}
+
+message RealmState {
+  psm.state.v1.StateMetadata metadata = 1 [(buf.validate.field).required = true];
+
+  RealmKeys keys = 2 [
+    (j5.ext.v1.field).message.flatten = true,
+    (buf.validate.field).required = true
+  ];
+
+  RealmStatus status = 3 [(buf.validate.field).required = true];
+
+  RealmStateData data = 4 [(buf.validate.field).required = true];
+}
+
+enum RealmStatus {
+  REALM_STATUS_UNSPECIFIED = 0;
+  REALM_STATUS_ACTIVE = 1;
+}
+
+message RealmSpec {
+  string name = 1;
+
+  // predefined 'well-known' realm types specified at the application level.
+  string type = 2 [(buf.validate.field).string.pattern = "^[a-z0-9_]+$"];
+
+  // API URL for API Access to the realm
+  string base_url = 3;
+
+  repeated TenantType tenant_types = 4;
+
+  // Key-value pairs of metadata for this realm, which are interpreted in the
+  // context of the realm type
+  map<string, string> metadata = 10;
+}
+
+message TenantType {
+  string name = 1 [(buf.validate.field).string.pattern = "^[a-z0-9_]+$"];
+  string label = 2;
+
+  // the tenant-type has exactly one tenant ID in the realm.
+  // In multi-tenant environments, this tenant type is has global access across all tenants
+  // If this is the only tenant-type in the realm, the realm itself is single-tenant.
+  bool singular = 3;
+}
+
+message RealmEvent {
+  psm.state.v1.EventMetadata metadata = 1 [(buf.validate.field).required = true];
+
+  RealmKeys keys = 2 [
+    (j5.ext.v1.field).message.flatten = true,
+    (buf.validate.field).required = true
+  ];
+
+  RealmEventType event = 3 [(buf.validate.field).required = true];
+}
+
+message RealmEventType {
+  oneof type {
+    Created created = 1;
+    Updated updated = 2;
+  }
+
+  message Created {
+    RealmSpec spec = 1;
+  }
+
+  message Updated {
+    RealmSpec spec = 1;
+  }
+}
