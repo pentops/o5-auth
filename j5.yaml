@@ -1,15 +1,12 @@
 ---
 bundles:
-  - name: auth
-    dir: proto/auth
-
   - name: realms
     dir: proto/realms
 
 generate:
   - name: go
     inputs:
-      - local: auth
+      - local: realms
     output: .
     opts:
       paths: import
