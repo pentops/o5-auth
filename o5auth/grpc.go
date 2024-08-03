@@ -49,13 +49,13 @@ func GetAuthenticatedAction(ctx context.Context) (*auth_j5pb.Action, error) {
 }
 
 type baseJWT struct {
-	ID        string `json:"jti"`
-	Issuer    string `json:"iss"`
-	Audience  string `json:"aud"`
-	Subject   string `json:"sub"`
-	IssuedAt  int64  `json:"iat"`
-	Expires   int64  `json:"exp"`
-	NotBefore int64  `json:"nbf"`
+	ID        string        `json:"jti"`
+	Issuer    string        `json:"iss"`
+	Audience  StringOrSlice `json:"aud"`
+	Subject   string        `json:"sub"`
+	IssuedAt  int64         `json:"iat"`
+	Expires   int64         `json:"exp"`
+	NotBefore int64         `json:"nbf"`
 
 	Scopes []string `json:"scopes"`
 
@@ -63,6 +63,34 @@ type baseJWT struct {
 	TenantID   string            `json:"claims.pentops.com/tenantid"`
 	RealmID    string            `json:"claims.pentops.com/realmid"`
 	ActorTags  map[string]string `json:"claims.pentops.com/actortags"`
+}
+
+type StringOrSlice []string
+
+func (s *StringOrSlice) UnmarshalJSON(data []byte) error {
+	if len(data) == 0 {
+		return fmt.Errorf("empty data")
+	}
+	if data[0] == '[' {
+		var slice []string
+		if err := json.Unmarshal(data, &slice); err != nil {
+			return err
+		}
+		*s = slice
+		return nil
+	}
+
+	if data[0] != '"' {
+		return fmt.Errorf("expected string or slice, got %s", data)
+	}
+
+	var str string
+	if err := json.Unmarshal(data, &str); err != nil {
+		return err
+	}
+	*s = []string{str}
+
+	return nil
 }
 
 func actorFromJWT(jwt *baseJWT) (*auth_j5pb.Actor, error) {
