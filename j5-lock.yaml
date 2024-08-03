@@ -1,7 +1,0 @@
-inputs:
-    - name: buf/bufbuild/protovalidate
-      version: a6c49f84cc0f4e038680d390392e2ab0
-    - name: registry/v1/pentops/j5
-      version: main
-    - name: registry/v1/pentops/protostate
-      version: main
