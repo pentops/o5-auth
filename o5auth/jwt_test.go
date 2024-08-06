@@ -1,4 +1,4 @@
-package jwt
+package o5auth
 
 import (
 	"encoding/json"

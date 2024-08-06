@@ -8,10 +8,13 @@ import (
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
 	"github.com/pentops/j5/gen/j5/auth/v1/auth_j5pb"
-	"github.com/pentops/o5-auth/internal/jwt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+)
+
+const (
+	VerifiedJWTHeader = "x-verified-jwt"
 )
 
 type actionContextKey struct{}
@@ -51,7 +54,7 @@ func GRPCMiddleware(ctx context.Context, req any, info *grpc.UnaryServerInfo, ha
 		return handler(ctx, req)
 	}
 
-	actor, err := jwt.ActorFromJWT(incomming)
+	actor, err := ActorFromJWT(incomming)
 	if err != nil {
 		return nil, err
 	}
@@ -67,14 +70,14 @@ func GRPCMiddleware(ctx context.Context, req any, info *grpc.UnaryServerInfo, ha
 	return handler(ctx, req)
 }
 
-func getSidecarJWT(ctx context.Context) (*jwt.JWT, error) {
+func getSidecarJWT(ctx context.Context) (*JWT, error) {
 	incomingMD := metautils.ExtractIncoming(ctx)
-	verifiedJWT := incomingMD.Get(jwt.VerifiedJWTHeader)
+	verifiedJWT := incomingMD.Get(VerifiedJWTHeader)
 	if verifiedJWT == "" {
 		return nil, nil
 	}
 
-	var authJWT *jwt.JWT
+	var authJWT *JWT
 	err := json.Unmarshal([]byte(verifiedJWT), &authJWT)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal verified JWT: %w", err)

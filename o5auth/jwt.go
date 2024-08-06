@@ -1,4 +1,4 @@
-package jwt
+package o5auth
 
 import (
 	"encoding/json"
@@ -9,10 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/pentops/j5/gen/j5/auth/v1/auth_j5pb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-)
-
-const (
-	VerifiedJWTHeader = "x-verified-jwt"
 )
 
 type JWT struct {
