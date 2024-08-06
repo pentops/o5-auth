@@ -35,7 +35,23 @@ func WithClaim(claim *auth_j5pb.Claim) tokenOption {
 	}
 }
 
-func JWTContext(ctx context.Context, opts ...tokenOption) context.Context {
+func ActionContext(ctx context.Context, opts ...tokenOption) context.Context {
+	token := buildToken(opts...)
+	actor, err := o5auth.ActorFromJWT(token)
+	if err != nil {
+		panic(err)
+	}
+
+	action := &auth_j5pb.Action{
+		Actor:  actor,
+		Method: "/fake/method",
+	}
+
+	ctx = o5auth.WithAction(ctx, action)
+	return ctx
+}
+
+func buildToken(opts ...tokenOption) *o5auth.JWT {
 
 	token := &o5auth.JWT{
 		ID:         uuid.New().String(),
@@ -54,6 +70,11 @@ func JWTContext(ctx context.Context, opts ...tokenOption) context.Context {
 	for _, opt := range opts {
 		opt(token)
 	}
+	return token
+
+}
+func JWTContext(ctx context.Context, opts ...tokenOption) context.Context {
+	token := buildToken(opts...)
 
 	jwtJSON, err := json.Marshal(token)
 	if err != nil {
