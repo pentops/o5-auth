@@ -8,26 +8,26 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pentops/j5/gen/j5/auth/v1/auth_j5pb"
-	"github.com/pentops/o5-auth/internal/jwt"
+	"github.com/pentops/o5-auth/o5auth"
 	"google.golang.org/grpc/metadata"
 )
 
-type tokenOption func(*jwt.JWT)
+type tokenOption func(*o5auth.JWT)
 
 func WithActorTags(tags map[string]string) tokenOption {
-	return func(token *jwt.JWT) {
+	return func(token *o5auth.JWT) {
 		token.ActorTags = tags
 	}
 }
 
 func WithScopes(scopes []string) tokenOption {
-	return func(token *jwt.JWT) {
+	return func(token *o5auth.JWT) {
 		token.Scopes = scopes
 	}
 }
 
 func WithClaim(claim *auth_j5pb.Claim) tokenOption {
-	return func(token *jwt.JWT) {
+	return func(token *o5auth.JWT) {
 		token.TenantType = claim.TenantType
 		token.TenantID = claim.TenantId
 		token.RealmID = claim.RealmId
@@ -37,10 +37,10 @@ func WithClaim(claim *auth_j5pb.Claim) tokenOption {
 
 func JWTContext(ctx context.Context, opts ...tokenOption) context.Context {
 
-	token := &jwt.JWT{
+	token := &o5auth.JWT{
 		ID:         uuid.New().String(),
 		Issuer:     "test",
-		Audience:   jwt.StringOrSlice{"test"},
+		Audience:   o5auth.StringOrSlice{"test"},
 		Subject:    fmt.Sprintf("test/%s", uuid.NewString()),
 		IssuedAt:   time.Now().Unix(),
 		Expires:    time.Now().Add(time.Hour).Unix(),
@@ -60,7 +60,7 @@ func JWTContext(ctx context.Context, opts ...tokenOption) context.Context {
 		panic(err)
 	}
 
-	md := metadata.MD{jwt.VerifiedJWTHeader: []string{
+	md := metadata.MD{o5auth.VerifiedJWTHeader: []string{
 		string(jwtJSON),
 	}}
 
