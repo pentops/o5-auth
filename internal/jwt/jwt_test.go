@@ -1,4 +1,4 @@
-package o5auth
+package jwt
 
 import (
 	"encoding/json"
@@ -19,7 +19,7 @@ func TestActorExtract(t *testing.T) {
 
 	issuedAt := time.Date(2024, 6, 14, 18, 00, 24, 0, time.UTC)
 
-	jwt := &baseJWT{
+	jwt := &JWT{
 		Subject:    fmt.Sprintf("%s/%s", "subjectType", clientID),
 		TenantType: "tenantType",
 		TenantID:   tenantID,
@@ -33,7 +33,7 @@ func TestActorExtract(t *testing.T) {
 		Issuer: "https://auth.pentops.com",
 	}
 
-	actor, err := actorFromJWT(jwt)
+	actor, err := ActorFromJWT(jwt)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func TestJSONEncoding(t *testing.T) {
 
 	t.Run("string", func(t *testing.T) {
 		enc := []byte(`{"aud":"audienceString"}`)
-		jj := &baseJWT{}
+		jj := &JWT{}
 		if err := json.Unmarshal(enc, jj); err != nil {
 			t.Fatal(err)
 		}
@@ -83,7 +83,7 @@ func TestJSONEncoding(t *testing.T) {
 
 	t.Run("slice", func(t *testing.T) {
 		enc := []byte(`{"aud":["a1", "a2"]}`)
-		jj := &baseJWT{}
+		jj := &JWT{}
 		if err := json.Unmarshal(enc, jj); err != nil {
 			t.Fatal(err)
 		}
