@@ -1,4 +1,4 @@
-package o5auth
+package j5auth
 
 import (
 	"context"
