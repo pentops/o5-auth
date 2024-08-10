@@ -5,7 +5,8 @@ go 1.22.4
 require (
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
-	github.com/pentops/j5 v0.0.0-20240809205235-0d9578f35b67
+	github.com/pentops/j5 v0.0.0-20240810013210-12540c68f639
+	github.com/pentops/realms v0.0.0-20240810000025-29d00346a1f8
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 )

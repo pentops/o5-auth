@@ -36,8 +36,10 @@ github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORN
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/opentracing/opentracing-go v1.1.0/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
-github.com/pentops/j5 v0.0.0-20240809205235-0d9578f35b67 h1:kkrTwRY9F66Lh/PT4zMzUGjA7uUwHLvvotLQho6mJUw=
-github.com/pentops/j5 v0.0.0-20240809205235-0d9578f35b67/go.mod h1:qB/lz7LcjkfGlGNN1MzrU9/eUhT/nrD07pDpCPwjBiQ=
+github.com/pentops/j5 v0.0.0-20240810013210-12540c68f639 h1:n6+6IWEn8nwU+xxibXziQoysFp4R9kNaj5YZF1q5tlc=
+github.com/pentops/j5 v0.0.0-20240810013210-12540c68f639/go.mod h1:qB/lz7LcjkfGlGNN1MzrU9/eUhT/nrD07pDpCPwjBiQ=
+github.com/pentops/realms v0.0.0-20240810000025-29d00346a1f8 h1:xso8WojEdd9xwwA0O9BW/QlPyfPm9etG/AFcA2spG1A=
+github.com/pentops/realms v0.0.0-20240810000025-29d00346a1f8/go.mod h1:GnPEW9fMpNKN1r9Dl75AGsh6dSSWHz82XEppgReL41Q=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
