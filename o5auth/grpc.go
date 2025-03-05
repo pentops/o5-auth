@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/metadata"
 	"github.com/pentops/j5/gen/j5/auth/v1/auth_j5pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -71,7 +71,7 @@ func GRPCMiddleware(ctx context.Context, req any, info *grpc.UnaryServerInfo, ha
 }
 
 func getSidecarJWT(ctx context.Context) (*JWT, error) {
-	incomingMD := metautils.ExtractIncoming(ctx)
+	incomingMD := metadata.ExtractIncoming(ctx)
 	verifiedJWT := incomingMD.Get(VerifiedJWTHeader)
 	if verifiedJWT == "" {
 		return nil, nil
